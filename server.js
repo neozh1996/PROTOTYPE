@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-const YOUR_DOMAIN = 'http://localhost:3000'; // Adjust this for production
+const YOUR_DOMAIN = 'https://prototype-3-ovdq.onrender.com'; // Adjust this for production
 
 // Endpoint to create a Stripe Checkout session
 app.post('/create-checkout-session', async (req, res) => {
