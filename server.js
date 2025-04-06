@@ -41,13 +41,16 @@ app.post('/create-checkout-session', async (req, res) => {
   }
 });
 
-const PORT = 3000;
-//app.get('/success', (req, res) => {
- // res.send('Success!');
-//});
+// Use the port provided by Render
+const PORT = process.env.PORT || 3000; // Use Render's port or fallback to 3000 locally
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+//app.get('/success', (req, res) => {
+ // res.send('Success!');
+//});
+
 app.get('/payment-success', (req, res) => {
   res.send(`
     <h1>Payment Successful!</h1>
