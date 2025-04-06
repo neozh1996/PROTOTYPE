@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    /* Navigation bar styling */
+    .navbar {
+      background-color: #593;
+      overflow: hidden;
+      padding: 10px;
+    }
+
+    .navbar a, .dropdown .dropbtn {
+      float: left;
+      color: white;
+      padding: 14px 16px;
+      text-decoration: none;
+      border: none;
+      background: none;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    /* Cart Icon styling */
+    .cart-icon {
+      float: right;
+      font-size: 1.5rem;
+      color: white;
+      cursor: pointer;
+      padding: 14px 16px;
+    }
+
+    .cart-icon span {
+      font-size: 1.2rem;
+      background-color: red;
+      padding: 3px 8px;
+      border-radius: 50%;
+      color: white;
+    }
+
+    header {
+      text-align: center;
+      font-size: 2rem;
+      padding: 20px;
+      background-color: black;
+      color: white;
+    }
+
+    #content {
+      margin: 30px;
+      font-size: 1.2rem;
+    }
+
+    /* Style for the menu items */
+    .menu {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .menu-item {
+      border: 1px solid #ccc;
+      padding: 15px;
+      text-align: center;
+      background-color: #f4f4f4;
+      width: 200px;
+      border-radius: 8px;
+    }
+
+    .menu-item img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    .price {
+      display: block;
+      margin-top: 10px;
+      font-size: 1.2rem;
+      color: #333;
+    }
+
+    /* Cart section */
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px 0;
+    }
+
+    .cart-item span {
+      font-size: 1.1rem;
+    }
+
+    .cart-total {
+      text-align: right;
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    /* Make Payment Button */
+    .payment-button {
+      display: block;
+      width: 100%;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 1.5rem;
+      padding: 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .payment-button:hover {
+      background-color: #45a049;
+    }
+
+  </style>
+</head>
+<body>
+
+<header>
+  PROTOTYPE
+  <div class="cart-icon" onclick="toggleCart()">
+    🛒 <span id="cart-count">0</span>
+  </div>
+</header>
+
+<div class="navbar">
+  <a onclick="showContent('Mains')">Mains</a>
+  <a onclick="showContent('Sides')">Sides</a>
+  <a onclick="showContent('Drinks')">Drinks</a>
+</div>
+
+<!-- This is where the content will appear -->
+<div id="content"></div>
+
+<script>
+  // Cart data structure to store items
+  let cart = [];
+
+  // Function to toggle the cart visibility and show the cart content
+  function toggleCart() {
+    const contentBox = document.getElementById('content');
+
+    if (contentBox.classList.contains('cart-view')) {
+      // If currently viewing cart, show the menu content again
+      contentBox.classList.remove('cart-view');
+      showContent('Mains');  // Default to showing Mains (or the last viewed section)
+    } else {
+      // If not viewing cart, show the cart content
+      contentBox.classList.add('cart-view');
+      displayCart();
+    }
+  }
+
+  // Function to update cart content
+  function displayCart() {
+    const contentBox = document.getElementById('content');
+    const cartCount = document.getElementById('cart-count');
+    const totalPriceElement = document.createElement('div');
+    totalPriceElement.classList.add('cart-total');
+    totalPriceElement.innerHTML = 'Total: $<span id="total-price">0.00</span>';
+
+    // Clear previous cart content
+    contentBox.innerHTML = '';
+
+    let totalPrice = 0;
+    const cartItems = document.createElement('div');
+    cartItems.classList.add('cart-items');
+    
+    cart.forEach(item => {
+      const itemElement = document.createElement('div');
+      itemElement.className = 'cart-item';
+      itemElement.innerHTML = `<span>${item.name}</span><span>$${item.price.toFixed(2)}</span>`;
+      cartItems.appendChild(itemElement);
+      totalPrice += item.price;
+    });
+
+    contentBox.appendChild(cartItems);
+    contentBox.appendChild(totalPriceElement);
+
+    // Update total price and item count
+    document.getElementById('total-price').textContent = totalPrice.toFixed(2);
+    cartCount.textContent = cart.length;
+
+    // Add Make Payment button at the bottom
+    const paymentButton = document.createElement('button');
+    paymentButton.classList.add('payment-button');
+    paymentButton.innerText = 'Make Payment';
+    paymentButton.onclick = function() {
+      createPaymentSession(totalPrice);  // Call the function to create a Stripe session
+    };
+    contentBox.appendChild(paymentButton);
+  }
+
+  function showContent(item) {
+    const contentBox = document.getElementById('content');
+    let message = '';
+
+    switch(item) {
+      case 'Mains':
+        message = `
+          <div class="menu">
+            <div class="menu-item" onclick="addToCart('Chicken Chop', 12.99)">
+              <img src="images/Chicken_chop.jpg" alt="Chicken Chop">
+              <p>Chicken Chop</p>
+              <span class="price">$12.99</span>
+            </div>
+            <div class="menu-item" onclick="addToCart('Fish and Chips', 14.99)">
+              <img src="images/Fish&chips.jpg" alt="Fish and Chips">
+              <p>Fish and Chips</p>
+              <span class="price">$14.99</span>
+            </div>
+            <div class="menu-item" onclick="addToCart('Beef Steak', 19.99)">
+              <img src="images/beefsteak.jpg" alt="Beef Steak">
+              <p>Beef Steak</p>
+              <span class="price">$19.99</span>
+            </div>
+            <div class="menu-item" onclick="addToCart('Aglio Olio', 11.99)">
+              <img src="images/aglioolio.jpg" alt="Aglio Olio">
+              <p>Aglio Olio</p>
+              <span class="price">$11.99</span>
+            </div>
+            <div class="menu-item" onclick="addToCart('Burger', 9.99)">
+              <img src="images/burger.jpg" alt="Burger">
+              <p>Burger</p>
+              <span class="price">$9.99</span>
+            </div>
+          </div>
+        `;
+        break;
+      case 'Sides':
+        message = `
+          <div class="menu">
+            <div class="menu-item" onclick="addToCart('French Fries', 3.99)">
+              <img src="images/frenchfries.jpg" alt="French Fries">
+              <p>French Fries</p>
+              <span class="price">$3.99</span>
+            </div>
+            <div class="menu-item" onclick="addToCart('Chicken Nuggets', 5.99)">
+              <img src="images/chickennugget.jpg" alt="Chicken Nuggets">
+              <p>Chicken Nuggets</p>
+              <span class="price">$5.99</span>
+            </div>
+            <div class="menu-item" onclick="addToCart('Potato Wedges', 4.99)">
+              <img src="images/potatowedges.jpg" alt="Potato Wedges">
+              <p>Potato Wedges</p>
+              <span class="price">$4.99</span>
+            </div>
+            <div class="menu-item" onclick="addToCart('Mushroom Soup', 6.49)">
+              <img src="images/mushroomsoup.jpg" alt="Mushroom Soup">
+              <p>Mushroom Soup</p>
+              <span class="price">$6.49</span>
+            </div>
+            <div class="menu-item" onclick="addToCart('Edina', 7.49)">
+              <img src="images/edina.jpg" alt="Edina">
+              <p>Edina</p>
+              <span class="price">$7.49</span>
+            </div>
+          </div>
+        `;
+        break;
+      case 'Drinks':
+        message = `
+          <div class="menu">
+            <div class="menu-item" onclick="addToCart('Milk Tea', 3.50)">
+              <img src="images/milktea.jpg" alt="Milk Tea">
+              <p>Milk Tea</p>
+              <span class="price">$3.50</span>
+            </div>
+            <div class="menu-item" onclick="addToCart('Coke', 2.99)">
+              <img src="images/coke.jpg" alt="Coke">
+              <p>Coke</p>
+              <span class="price">$2.99</span>
+            </div>
+            <div class="menu-item" onclick="addToCart('Sprite', 2.99)">
+              <img src="images/sprite.jpg" alt="Sprite">
+              <p>Sprite</p>
+              <span class="price">$2.99</span>
+            </div>
+            <div class="menu-item" onclick="addToCart('Lemon Tea', 3.25)">
+              <img src="images/lemontea.jpg" alt="Lemon Tea">
+              <p>Lemon Tea</p>
+              <span class="price">$3.25</span>
+            </div>
+          </div>
+        `;
+        break;
+      default:
+        message = '';
+    }
+
+    contentBox.innerHTML = message;
+  }
+
+  // Function to add an item to the cart
+  function addToCart(name, price) {
+    cart.push({ name, price });
+    const cartCount = document.getElementById('cart-count');
+    cartCount.textContent = cart.length;
+  }
+
+  // Stripe Checkout frontend function
+  async function createPaymentSession(totalPrice) {
+    const response = await fetch('https://workspace.neozhihao96.repl.co/create-checkout-session', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        items: cart,
+        totalPrice: totalPrice
+      }),
+    });
+
+    const session = await response.json();
+
+    if (session.id) {
+      const stripe = Stripe('pk_test_51RAYHoIoIfHXZGbrdbgld1CJ1IhyVvrLT5od22wbk6ynwm8gilA4kxy3Cb2kV7jbPgIT8hd0Sgt5SGrFUZcfxvE300BvXK9vnL'); // Use your Stripe publishable key here
+      const { error } = await stripe.redirectToCheckout({ sessionId: session.id });
+
+      if (error) {
+        console.error("Stripe Checkout Error:", error);
+      }
+    } else {
+      console.error("Failed to create checkout session");
+    }
+  }
+  function redirectToHome() {
+            window.location.href = "PROTOTYPE%20with%20payment.html";  // Assuming the home page is at '/'
+        }
+  // Listen for page load on the payment success or failure page to redirect to home
+  window.onload = function() {
+    const currentUrl = window.location.href;
+
+    // Redirect to home after payment success or failure
+    if (currentUrl.includes('payment-success') || currentUrl.includes('payment-failed')) {
+      setTimeout(function() {
+        redirectToHome();
+      }, 3000);  // Wait for 3 seconds before redirecting
+    }
+  };  
+
+  
+</script>
+
+<script src="https://js.stripe.com/v3/"></script>
+
+</body>
+</html>
