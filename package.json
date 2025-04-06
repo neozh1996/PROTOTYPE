@@ -14,4 +14,7 @@
   "author": "",
   "license": "ISC",
   "description": ""
+  "scripts": {
+  "start": "node server.js"
+}
 }
